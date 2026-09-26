@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3f5f2">
+  <title>Northstar | Central de monitoramento</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
+  <script src="js/app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#overview" aria-label="Northstar, início">
+        <span class="brand-mark"><i data-lucide="orbit"></i></span>
+        <span class="brand-name">northstar<span>INFRASTRUCTURE</span></span>
+      </a>
+      <div class="site-select">
+        <span class="site-icon"><i data-lucide="building-2"></i></span>
+        <span class="site-copy"><strong>DC São Paulo</strong><small>Zona Sul · SP-01</small></span>
+        <i class="site-chevron" data-lucide="chevrons-up-down"></i>
+      </div>
+      <div class="nav-caption">MONITORAMENTO</div>
+      <nav class="primary-nav" aria-label="Navegação principal">
+        <button class="nav-link active" data-view="overview"><i data-lucide="layout-dashboard"></i><span>Visão geral</span><kbd>01</kbd></button>
+        <button class="nav-link" data-view="servers"><i data-lucide="server"></i><span>Servidores</span><span class="nav-count" id="nav-server-count">20</span></button>
+        <button class="nav-link" data-view="alerts"><i data-lucide="bell-ring"></i><span>Alertas</span><span class="nav-count alert-count" id="nav-alert-count">6</span></button>
+        <button class="nav-link" data-view="infrastructure"><i data-lucide="network"></i><span>Infraestrutura</span></button>
+      </nav>
+      <div class="nav-caption tools-caption">SISTEMA</div>
+      <nav class="primary-nav" aria-label="Ferramentas">
+        <button class="nav-link" data-view="activity"><i data-lucide="activity"></i><span>Registro de atividade</span></button>
+        <button class="nav-link" data-view="settings"><i data-lucide="settings-2"></i><span>Configurações</span></button>
+      </nav>
+      <div class="sidebar-spacer"></div>
+      <div class="sidebar-status"><span class="pulse-dot"></span><span>Todos os sistemas operacionais</span><i data-lucide="arrow-up-right"></i></div>
+      <button class="profile-button" id="profile-button">
+        <span class="avatar">MC</span><span class="profile-copy"><strong>Marina Costa</strong><small>Administradora</small></span><i data-lucide="more-horizontal"></i>
+      </button>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <button class="icon-button mobile-menu" id="mobile-menu" aria-label="Abrir navegação"><i data-lucide="menu"></i></button>
+        <div class="breadcrumbs"><span>Operações</span><i data-lucide="chevron-right"></i><strong id="breadcrumb-current">Visão geral</strong></div>
+        <div class="topbar-actions">
+          <span class="last-sync"><span class="pulse-dot"></span><span id="sync-label">Atualizado agora</span></span>
+          <button class="icon-button theme-trigger" id="theme-toggle" aria-label="Ativar modo escuro" title="Ativar modo escuro"><i data-lucide="moon"></i></button>
+          <button class="icon-button notification-trigger" id="notification-trigger" aria-label="Abrir notificações" title="Notificações"><i data-lucide="bell"></i><span class="notification-dot" id="notification-dot"></span></button>
+          <button class="icon-button help-button" id="help-button" aria-label="Ajuda" title="Ajuda"><i data-lucide="circle-help"></i></button>
+          <div class="notification-popover" id="notification-popover" hidden>
+            <div class="popover-heading"><strong>Central de alertas</strong><button class="text-button" data-view="alerts">Ver todos</button></div>
+            <div id="popover-alerts"></div>
+          </div>
+        </div>
+      </header>
+
+      <div class="content-wrap">
+        <section class="view-panel" id="view-overview">
+          <div class="page-heading">
+            <div><div class="eyebrow"><span class="pulse-dot"></span> CENTRO DE OPERAÇÕES <span class="eyebrow-separator">/</span> SP-01</div><h1>Visão geral</h1><p>Uma leitura clara da saúde do seu data center.</p></div>
+            <div class="heading-actions"><button class="button button-secondary" id="live-toggle"><span class="live-indicator"></span><span id="live-label">Tempo real</span><i data-lucide="chevron-down"></i></button><button class="button button-primary" id="refresh-button"><i data-lucide="refresh-cw"></i> Atualizar dados</button></div>
+          </div>
+
+          <div class="summary-grid">
+            <button class="summary-card cpu-card" data-card-view="infrastructure">
+              <div class="summary-top"><span class="summary-icon"><i data-lucide="cpu"></i></span><span class="summary-label">Uso de CPU</span><i class="card-arrow" data-lucide="arrow-up-right"></i></div>
+              <div class="gauge-row"><div class="gauge" style="--value:77;--gauge-color:var(--yellow)"><span id="cpu-value">77</span><small>%</small></div><div class="summary-note"><strong class="trend-up">+4,2%</strong><span>vs. última hora</span></div></div>
+              <div class="card-foot"><span>Capacidade média</span><span class="mini-spark spark-yellow">▁▂▃▂▄▅▄▆</span></div>
+            </button>
+            <button class="summary-card" data-card-view="servers" data-status-filter="online">
+              <div class="summary-top"><span class="summary-icon green-icon"><i data-lucide="server"></i></span><span class="summary-label">Servidores online</span><i class="card-arrow" data-lucide="arrow-up-right"></i></div>
+              <div class="stat-value" id="online-value">10<span class="stat-unit">/ 20</span></div><div class="stat-sub"><span class="status-pill status-online"><span></span> Operacionais</span><span>50% da frota</span></div>
+              <div class="thin-track"><span class="fill-green" style="width:50%"></span></div>
+            </button>
+            <button class="summary-card" data-card-view="servers">
+              <div class="summary-top"><span class="summary-icon green-icon"><i data-lucide="boxes"></i></span><span class="summary-label">Servidores totais</span><i class="card-arrow" data-lucide="arrow-up-right"></i></div>
+              <div class="stat-value" id="total-value">20</div><div class="stat-sub"><span>3 racks ativos</span><span class="neutral-trend"><i data-lucide="minus"></i> estável</span></div>
+              <div class="rack-dots" aria-label="Distribuição em três racks"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            </button>
+            <button class="summary-card" data-card-view="servers" data-status-filter="offline">
+              <div class="summary-top"><span class="summary-icon red-icon"><i data-lucide="server-crash"></i></span><span class="summary-label">Servidores offline</span><i class="card-arrow" data-lucide="arrow-up-right"></i></div>
+              <div class="stat-value" id="offline-value">5</div><div class="stat-sub"><span class="status-pill status-offline"><span></span> Requer atenção</span><span>25% da frota</span></div>
+              <div class="thin-track"><span class="fill-red" style="width:25%"></span></div>
+            </button>
+            <button class="summary-card" data-card-view="alerts">
+              <div class="summary-top"><span class="summary-icon red-icon"><i data-lucide="bell-ring"></i></span><span class="summary-label">Alertas ativos</span><i class="card-arrow" data-lucide="arrow-up-right"></i></div>
+              <div class="stat-value" id="alert-value">6</div><div class="stat-sub"><span class="critical-copy"><span class="critical-dot"></span><span id="critical-value">2 críticos</span></span><span>Últimas 24h</span></div>
+              <div class="alert-bars"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            </button>
+          </div>
+
+          <div class="dashboard-grid">
+            <section class="panel performance-panel">
+              <div class="panel-heading"><div><div class="section-overline">TENDÊNCIA</div><h2>Desempenho do sistema</h2></div><div class="chart-controls"><div class="segmented" role="group" aria-label="Métrica do gráfico"><button class="segment active" data-metric="cpu">CPU</button><button class="segment" data-metric="memory">Memória</button><button class="segment" data-metric="network">Rede</button></div><select class="select-compact" id="period-select" aria-label="Período"><option value="24h">24 horas</option><option value="7d" selected>7 dias</option><option value="30d">30 dias</option></select></div></div>
+              <div class="chart-legend"><span><i class="legend-dot legend-main"></i><span id="chart-legend-label">Uso médio de CPU</span></span><span class="chart-current" id="chart-current">77%</span><span class="legend-muted">Atualizado em tempo real</span></div>
+              <div class="chart-wrap"><canvas id="performance-chart" role="img" aria-label="Gráfico de desempenho ao longo do tempo"></canvas></div>
+            </section>
+            <section class="panel resource-panel">
+              <div class="panel-heading"><div><div class="section-overline">CAPACIDADE</div><h2>Uso de recursos</h2></div><button class="icon-button small-icon" data-view="infrastructure" aria-label="Ver infraestrutura"><i data-lucide="arrow-up-right"></i></button></div>
+              <div class="resource-list" id="resource-list"></div>
+              <div class="resource-note"><i data-lucide="info"></i><span>Limites baseados na capacidade instalada</span></div>
+            </section>
+          </div>
+
+          <div class="lower-grid">
+            <section class="panel alerts-panel">
+              <div class="panel-heading"><div><div class="section-overline">PRECISA DE ATENÇÃO</div><h2>Alertas recentes <span class="heading-count" id="recent-alert-count">6</span></h2></div><button class="text-button" data-view="alerts">Todos os alertas <i data-lucide="arrow-right"></i></button></div>
+              <div class="alert-list" id="recent-alerts"></div>
+            </section>
+            <section class="panel health-panel">
+              <div class="panel-heading"><div><div class="section-overline">DISTRIBUIÇÃO</div><h2>Saúde da frota</h2></div><span class="health-time">AGORA</span></div>
+              <div class="health-total"><strong id="fleet-health-percent">75%</strong><span>dos servidores<br>estão operacionais</span></div>
+              <div class="health-stack" aria-label="Distribuição da saúde da frota"><span class="stack-online" id="stack-online"></span><span class="stack-maintenance" id="stack-maintenance"></span><span class="stack-offline" id="stack-offline"></span></div>
+              <div class="health-legend"><span><i class="legend-dot legend-green"></i>Online <strong id="health-online">10</strong></span><span><i class="legend-dot legend-yellow"></i>Manutenção <strong id="health-maintenance">5</strong></span><span><i class="legend-dot legend-red"></i>Offline <strong id="health-offline">5</strong></span></div>
+              <button class="button button-outline full-button" data-view="servers">Ver todos os servidores <i data-lucide="arrow-right"></i></button>
+            </section>
+          </div>
+          <footer class="page-footer"><span>Northstar Infrastructure <span class="footer-divider">·</span> Ambiente demonstrativo</span><span>Data center São Paulo <span class="footer-divider">·</span> <span id="footer-time"></span></span></footer>
+        </section>
+
+        <section class="view-panel" id="view-servers" hidden>
+          <div class="page-heading"><div><div class="eyebrow"><span class="pulse-dot"></span> INVENTÁRIO <span class="eyebrow-separator">/</span> SP-01</div><h1>Servidores</h1><p>Estado, capacidade e localização de cada equipamento.</p></div><div class="heading-actions"><button class="button button-secondary" id="export-button"><i data-lucide="download"></i> Exportar CSV</button><button class="button button-primary" id="add-server-button"><i data-lucide="plus"></i> Adicionar servidor</button></div></div>
+          <section class="panel inventory-panel"><div class="inventory-toolbar"><div class="search-field"><i data-lucide="search"></i><input id="server-search" type="search" placeholder="Buscar por nome, IP ou rack..." autocomplete="off"><kbd>/</kbd></div><div class="filter-group"><select id="server-status-filter" class="filter-select" aria-label="Filtrar por status"><option value="all">Todos os status</option><option value="online">Online</option><option value="offline">Offline</option><option value="maintenance">Manutenção</option></select><select id="server-rack-filter" class="filter-select" aria-label="Filtrar por rack"><option value="all">Todos os racks</option><option value="A-01">Rack A-01</option><option value="A-02">Rack A-02</option><option value="B-01">Rack B-01</option></select></div></div><div class="table-scroll"><table class="data-table"><thead><tr><th><button class="sort-button" data-sort="name">SERVIDOR <i data-lucide="arrow-down-up"></i></button></th><th>STATUS</th><th>ENDEREÇO IP</th><th>RACK</th><th>CPU</th><th>MEMÓRIA</th><th></th></tr></thead><tbody id="server-table-body"></tbody></table></div><div class="table-footer"><span id="server-result-count">Exibindo 20 servidores</span><span>Atualização automática ativa</span></div></section>
+        </section>
+
+        <section class="view-panel" id="view-alerts" hidden>
+          <div class="page-heading"><div><div class="eyebrow"><span class="critical-dot"></span> CENTRAL DE EVENTOS <span class="eyebrow-separator">/</span> SP-01</div><h1>Alertas</h1><p>Acompanhe incidentes e mantenha a operação sob controle.</p></div><div class="heading-actions"><button class="button button-secondary" id="ack-all-button"><i data-lucide="list-checks"></i> Reconhecer todos</button><button class="button button-primary" id="alerts-refresh-button"><i data-lucide="refresh-cw"></i> Atualizar</button></div></div>
+          <div class="alert-summary-row"><div class="alert-summary critical-summary"><span class="alert-summary-icon"><i data-lucide="octagon-alert"></i></span><div><strong id="alerts-critical-count">2</strong><span>Críticos</span></div></div><div class="alert-summary warning-summary"><span class="alert-summary-icon"><i data-lucide="triangle-alert"></i></span><div><strong id="alerts-warning-count">3</strong><span>Atenção</span></div></div><div class="alert-summary info-summary"><span class="alert-summary-icon"><i data-lucide="info"></i></span><div><strong id="alerts-info-count">1</strong><span>Informativos</span></div></div><div class="alert-summary resolved-summary"><span class="alert-summary-icon"><i data-lucide="circle-check"></i></span><div><strong id="alerts-resolved-count">0</strong><span>Resolvidos hoje</span></div></div></div>
+          <section class="panel alerts-table-panel"><div class="inventory-toolbar"><div class="filter-group alert-filters"><select id="alert-severity-filter" class="filter-select" aria-label="Filtrar por severidade"><option value="all">Todas as severidades</option><option value="critical">Crítico</option><option value="warning">Atenção</option><option value="info">Informativo</option></select><select id="alert-state-filter" class="filter-select" aria-label="Filtrar por estado"><option value="active">Alertas ativos</option><option value="acknowledged">Reconhecidos</option><option value="all">Todos</option></select></div><span class="table-live"><span class="pulse-dot"></span> Monitoramento ativo</span></div><div class="alert-table-list" id="alert-table-list"></div></section>
+        </section>
+
+        <section class="view-panel" id="view-infrastructure" hidden><div class="page-heading"><div><div class="eyebrow"><span class="pulse-dot"></span> CAMADA FÍSICA <span class="eyebrow-separator">/</span> SP-01</div><h1>Infraestrutura</h1><p>Capacidade, ambiente e conectividade do site.</p></div></div><div class="infrastructure-grid"><section class="panel"><div class="section-overline">RECURSOS COMPUTACIONAIS</div><h2>Capacidade instalada</h2><div class="resource-list resource-list-large" id="infra-resource-list"></div></section><section class="panel"><div class="section-overline">AMBIENTE</div><h2>Condições do data center</h2><div class="environment-grid"><div class="environment-reading"><i data-lucide="thermometer"></i><span>Temperatura</span><strong>21.4<span>°C</span></strong><small class="good-reading">Dentro do ideal</small></div><div class="environment-reading"><i data-lucide="droplets"></i><span>Umidade</span><strong>44<span>%</span></strong><small class="good-reading">Dentro do ideal</small></div><div class="environment-reading"><i data-lucide="zap"></i><span>Energia</span><strong>82<span>kW</span></strong><small class="good-reading">Carga estável</small></div><div class="environment-reading"><i data-lucide="wind"></i><span>Refrigeração</span><strong>18<span>°C</span></strong><small class="good-reading">2 unidades ativas</small></div></div></section><section class="panel network-panel"><div class="section-overline">CONECTIVIDADE</div><h2>Links de rede</h2><div class="network-row"><span class="network-icon"><i data-lucide="radio-tower"></i></span><span><strong>Link primário</strong><small>1 Gbps · Operadora A</small></span><span class="status-pill status-online"><span></span> Ativo</span><span class="network-latency">4 ms</span></div><div class="network-row"><span class="network-icon"><i data-lucide="radio-tower"></i></span><span><strong>Link redundante</strong><small>500 Mbps · Operadora B</small></span><span class="status-pill status-online"><span></span> Ativo</span><span class="network-latency">8 ms</span></div></section></div></section>
+
+        <section class="view-panel" id="view-activity" hidden><div class="page-heading"><div><div class="eyebrow">AUDITORIA <span class="eyebrow-separator">/</span> SP-01</div><h1>Registro de atividade</h1><p>Eventos recentes da operação.</p></div></div><section class="panel activity-panel"><div class="activity-list" id="activity-list"></div></section></section>
+
+        <section class="view-panel" id="view-settings" hidden><div class="page-heading"><div><div class="eyebrow">PREFERÊNCIAS</div><h1>Configurações</h1><p>Preferências locais desta sessão de monitoramento.</p></div></div><section class="panel settings-panel"><div class="setting-row"><div><strong>Modo escuro</strong><span>Usa uma paleta escura em toda a console. A preferência fica salva neste navegador.</span></div><button class="toggle-switch" id="settings-theme-toggle" role="switch" aria-checked="false" aria-label="Modo escuro"><span></span></button></div><div class="setting-row"><div><strong>Atualização em tempo real</strong><span>Atualiza os indicadores automaticamente a cada 5 segundos.</span></div><button class="toggle-switch is-on" id="settings-live-toggle" role="switch" aria-checked="true" aria-label="Atualização em tempo real"><span></span></button></div><div class="setting-row"><div><strong>Notificações do navegador</strong><span>Exibe notificações quando um alerta crítico é detectado.</span></div><button class="button button-secondary" id="browser-notifications-button"><i data-lucide="bell-ring"></i> Ativar notificações</button></div><div class="setting-row"><div><strong>Data center selecionado</strong><span>Site ativo para esta visão de monitoramento.</span></div><span class="setting-value"><i data-lucide="building-2"></i> SP-01 · São Paulo</span></div><div class="setting-row"><div><strong>Versão da console</strong><span>Ambiente demonstrativo local.</span></div><span class="setting-value mono">NORTHSTAR 2.8.4</span></div></section></section>
+      </div>
+    </main>
+  </div>
+
+  <dialog class="server-dialog" id="server-dialog"><form method="dialog" id="server-form"><div class="dialog-heading"><div><div class="section-overline">INVENTÁRIO</div><h2>Novo servidor</h2></div><button class="icon-button" value="cancel" aria-label="Fechar"><i data-lucide="x"></i></button></div><label class="form-field">Nome do servidor<input name="name" placeholder="ex. sp-db-021" required pattern="[A-Za-z0-9-]+" autocomplete="off"></label><label class="form-field">Endereço IP<input name="ip" placeholder="10.20.1.21" required pattern="[0-9]{1,3}(\.[0-9]{1,3}){3}"></label><div class="form-two"><label class="form-field">Rack<select name="rack"><option>A-01</option><option>A-02</option><option>B-01</option></select></label><label class="form-field">Status inicial<select name="status"><option value="online">Online</option><option value="maintenance">Manutenção</option></select></label></div><div class="dialog-actions"><button class="button button-secondary" value="cancel">Cancelar</button><button class="button button-primary" id="save-server-button" value="default">Adicionar servidor</button></div></form></dialog>
+  <div class="toast-region" id="toast-region" aria-live="polite"></div>
+</body>
+</html>
